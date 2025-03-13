@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
@@ -560,6 +560,10 @@
 		<Compile Include="Messages\ExpressionMessage.cs" />
 		<Compile Include="MirrorPatches.cs" />
 		<Compile Include="ModuleMainClass.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="LavaGang.MelonLoader" Version="0.6.6" />
 	</ItemGroup>
 	
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">

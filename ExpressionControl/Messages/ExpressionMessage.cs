@@ -2,11 +2,7 @@
 using LabFusion.Entities;
 using LabFusion.Network;
 using LabFusion.Player;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using LabFusion.SDK.Modules;
 
 namespace ExpressionControl.Messages
 {
@@ -27,7 +23,8 @@ namespace ExpressionControl.Messages
             writer.Write(dictString);
         }
 
-        public static ExpressionMessageData Create(Dictionary<string, bool> dict) {
+        public static ExpressionMessageData Create(Dictionary<string, bool> dict)
+        {
             return new ExpressionMessageData()
             {
                 playerId = PlayerIdManager.LocalId,
@@ -52,12 +49,13 @@ namespace ExpressionControl.Messages
                     }
                 }
 
-
-                if (data.playerId.IsOwner) {
+                if (data.playerId.IsMe)
+                {
                     return;
                 }
 
-                if (NetworkPlayerManager.TryGetPlayer(data.playerId, out var player)) {
+                if (NetworkPlayerManager.TryGetPlayer(data.playerId, out var player))
+                {
                     Dictionary<string, bool> dict = Core.GetDictionaryFromString(data.dictString);
                     if (dict != null)
                     {

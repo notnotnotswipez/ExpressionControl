@@ -1,16 +1,9 @@
-﻿using BoneLib;
+﻿using System.Collections;
+using BoneLib;
 using HarmonyLib;
 using Il2CppSLZ.Marrow;
 using Il2CppSLZ.VRMK;
-using LabFusion.Senders;
-using LabFusion.Utilities;
 using MelonLoader;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ExpressionControl
 {

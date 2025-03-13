@@ -1,22 +1,15 @@
 ﻿using BoneLib;
 using BoneLib.BoneMenu;
-using ExpressionControl;
 using ExpressionControl.Messages;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
-using Il2CppOculus.Platform;
 using Il2CppSLZ.Marrow;
-using Il2CppSLZ.VRMK;
-using Il2CppSystem.Runtime.Serialization.Formatters.Binary;
 using LabFusion.Network;
 using LabFusion.SDK.Modules;
 using MelonLoader;
-using System.Reflection;
 using UnityEngine;
-using static UnityEngine.ParticleSystem;
 
-[assembly: MelonInfo(typeof(ExpressionControl.Core), "ExpressionControl", "1.0.0", "notnotnotswipez", null)]
+[assembly: MelonInfo(typeof(ExpressionControl.Core), "ExpressionControl", "1.0.2", "notnotnotswipez", null)]
 [assembly: MelonGame("Stress Level Zero", "BONELAB")]
-[assembly: ModuleInfo(typeof(ModuleMainClass), "ExpressionControlModule", "1.0.0", "notnotnotswipez", "expressioncontrollmodule", true, ConsoleColor.Yellow)]
 
 namespace ExpressionControl
 {
@@ -24,7 +17,6 @@ namespace ExpressionControl
     {
         public static string lastBlendshapeName;
         private static Page mainPage;
-
 
         private static bool deletionMode = false;
 
@@ -36,6 +28,9 @@ namespace ExpressionControl
 
         public override void OnInitializeMelon()
         {
+            // Register the ExpressionControl module
+            ModuleManager.RegisterModule<ExpressionControlModule>();
+
             category = MelonPreferences.CreateCategory("ExpressionControl");
             savedString = category.CreateEntry<string>("SavedString", "");
 
@@ -44,15 +39,13 @@ namespace ExpressionControl
             mainPage = Page.Root.CreatePage("Expression Control", Color.yellow);
 
             RemakeMenu();
-
-
-            ModuleHandler.LoadModule(Assembly.GetExecutingAssembly());
-
         }
 
-        void RemakeMenu() {
+        void RemakeMenu()
+        {
             mainPage.RemoveAll();
-            mainPage.CreateString("Blendshape Name", Color.white, "", (str) => {
+            mainPage.CreateString("Blendshape Name", Color.white, "", (str) =>
+            {
                 lastBlendshapeName = str;
             });
             mainPage.CreateFunction("+", Color.green, () =>
@@ -66,10 +59,12 @@ namespace ExpressionControl
                 deletionMode = b;
             });
 
-            foreach (var keyPair in blendshapePairs) {
+            foreach (var keyPair in blendshapePairs)
+            {
                 mainPage.CreateBool(keyPair.Key, Color.white, keyPair.Value, (b) =>
                 {
-                    if (deletionMode) {
+                    if (deletionMode)
+                    {
                         blendshapePairs[keyPair.Key] = false;
                         ApplyBlendshapesToLocalPlayer();
                         blendshapePairs.Remove(keyPair.Key);
@@ -90,43 +85,47 @@ namespace ExpressionControl
 
         }
 
-        public static void Broadcast() {
-            if (!NetworkInfo.HasServer) {
+        public static void Broadcast()
+        {
+            if (!NetworkInfo.HasServer)
+            {
                 return;
             }
             ExpressionMessageData expressionMessageData = ExpressionMessageData.Create(blendshapePairs);
             using (var writer = FusionWriter.Create())
             {
                 var data = expressionMessageData;
-                writer.Write(data); 
+                writer.Write(data);
                 using (var message = FusionMessage.ModuleCreate<ExpressionMessage>(writer))
                 {
                     MessageSender.SendToServer(NetworkChannel.Reliable, message);
                 }
-
             }
         }
 
-        void SaveDictToFile() {
+        void SaveDictToFile()
+        {
             savedString.Value = GetStringFromDictionary(blendshapePairs);
             category.SaveToFile(false);
         }
 
-        public static string GetStringFromDictionary(Dictionary<string, bool> keyValuePairs) {
+        public static string GetStringFromDictionary(Dictionary<string, bool> keyValuePairs)
+        {
             int count = keyValuePairs.Count;
             string totalString = count + ";";
             foreach (var kv in keyValuePairs)
             {
-
-                totalString += kv.Key + ";" ;
+                totalString += kv.Key + ";";
                 totalString += kv.Value + ";";
             }
 
             return totalString;
         }
 
-        public static Dictionary<string, bool> GetDictionaryFromString(string targetString) {
-            if (targetString == "") {
+        public static Dictionary<string, bool> GetDictionaryFromString(string targetString)
+        {
+            if (targetString == "")
+            {
                 return new Dictionary<string, bool>();
             }
 
@@ -136,42 +135,46 @@ namespace ExpressionControl
 
             Dictionary<string, bool> dict = new Dictionary<string, bool>();
 
-            for (int i = starting; i < count * 2; i+=2) {
+            for (int i = starting; i < count * 2; i += 2)
+            {
                 dict.Add(split[i], bool.Parse(split[i + 1]));
-                
             }
 
             return dict;
         }
 
-        void ApplyBlendshapesToLocalPlayer() {
+        void ApplyBlendshapesToLocalPlayer()
+        {
             ApplyBlendshapesToRigmanager(Player.RigManager, blendshapePairs);
-         
         }
 
-        public static void ApplyBlendshapesToRigmanager(RigManager rigManager, Dictionary<string, bool> blendshapePairs) {
+        public static void ApplyBlendshapesToRigmanager(RigManager rigManager, Dictionary<string, bool> blendshapePairs)
+        {
             if (rigmanagerBlendshapePairs.ContainsKey(rigManager.GetInstanceID()))
             {
                 rigmanagerBlendshapePairs[rigManager.GetInstanceID()] = blendshapePairs;
             }
-            else {
+            else
+            {
                 rigmanagerBlendshapePairs.Add(rigManager.GetInstanceID(), blendshapePairs);
             }
-            
+
             ApplyBlendshapesToAvatar(rigManager.avatar, blendshapePairs);
             MirrorPatches.skinnedMeshRendererPairs.Clear();
         }
 
         public static Dictionary<string, bool> TryGetBlendShapePairFromRigmanager(RigManager rigManager)
         {
-            if (rigmanagerBlendshapePairs.ContainsKey(rigManager.GetInstanceID())) {
+            if (rigmanagerBlendshapePairs.ContainsKey(rigManager.GetInstanceID()))
+            {
                 return rigmanagerBlendshapePairs[rigManager.GetInstanceID()];
             }
 
             return null;
         }
 
-        public static void ApplyBlendshapesToAvatar(Il2CppSLZ.VRMK.Avatar avatar, Dictionary<string, bool> blendshapePairs) {
+        public static void ApplyBlendshapesToAvatar(Il2CppSLZ.VRMK.Avatar avatar, Dictionary<string, bool> blendshapePairs)
+        {
             ApplyBlendshapesToSkinnedMeshRenderers(avatar.GetComponentsInChildren<SkinnedMeshRenderer>(), blendshapePairs);
         }
 
