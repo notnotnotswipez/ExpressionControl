@@ -61,7 +61,9 @@ namespace ExpressionControl
 
             foreach (var keyPair in blendshapePairs)
             {
-                mainPage.CreateBool(keyPair.Key, Color.white, keyPair.Value, (b) =>
+                Color buttonColor = keyPair.Value ? Color.green : Color.red;
+                
+                mainPage.CreateBool(keyPair.Key, buttonColor, keyPair.Value, (b) =>
                 {
                     if (deletionMode)
                     {
@@ -74,6 +76,7 @@ namespace ExpressionControl
                         return;
                     }
                     blendshapePairs[keyPair.Key] = b;
+                    RemakeMenu();  //Redraw the menu to update colors
                     ApplyBlendshapesToLocalPlayer();
                     SaveDictToFile();
                     Broadcast();
